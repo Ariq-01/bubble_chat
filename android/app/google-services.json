@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "254382477367",
+    "project_id": "buuble-3aae3",
+    "storage_bucket": "buuble-3aae3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254382477367:android:a9b6cb9c7ad6de56aa6fb2",
+        "android_client_info": {
+          "package_name": "com.example.bubbles"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiMAsczmpsaGixTzicbvM_x070Kvor2Zs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
