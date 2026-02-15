@@ -7,26 +7,88 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
-import * as logger from "firebase-functions/logger";
+// Load environment variables from .env.local (only in development)
+import * as dotenv from "dotenv";
+dotenv.config();
 
+import * as functions from "firebase-functions/v2/https";
+import { setGlobalOptions } from "firebase-functions/v2";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "firebase-functions";
+
+
+// Initialize Gemini API with environment variable from .env.local or Firebase Secrets
+const apiKey = process.env.gemini_api_key || process.env.GEMINI_API_KEY;
+if (!apiKey) {
+    logger.error("Gemini API key not configured. Set 'gemini_api_key' in .env.local or 'GEMINI_API_KEY' in environment");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey || "");
+
+interface GenerateTextRequest {
+    data: {
+        prompt?: string;
+    };
+}
+
+export const generatedText = functions.onCall(async (request: GenerateTextRequest) => {
+    try {
+        const prompt = request.data.prompt?.trim();
+
+        if (!prompt) {
+            throw new functions.HttpsError("invalid-argument", "Prompt is required and cannot be empty");
+        }
+
+        if (prompt.length > 5000) {
+            throw new functions.HttpsError("invalid-argument", "Prompt exceeds maximum length of 5000 characters");
+        }
+
+        logger.info("Processing prompt request", { promptLength: prompt.length });
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash"
+        });
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+
+        if (!response || !response.text()) {
+            throw new functions.HttpsError("internal", "Failed to generate response from Gemini API");
+        }
+
+        logger.info("Response generated successfully");
+
+        return {
+            text: response.text(),
+            success: true
+        };
+    } catch (error) {
+        logger.error("Error in generatedText function", { error });
+        
+        if (error instanceof functions.HttpsError) {
+            throw error;
+        }
+        
+        throw new functions.HttpsError("internal", "An unexpected error occurred while generating text");
+    }
+})
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// Cost control: Maximum containers running at once (per-function limit)
+// For cost savings with Gemini API, keep this relatively low
+setGlobalOptions({ maxInstances: 5 });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// For Firebase Secrets Manager (production deployment):
+// 1. Upgrade project to Blaze plan: https://console.firebase.google.com/project/buuble-3aae3/usage/details
+// 2. Deploy secret: firebase functions:secrets:set GEMINI_API_KEY
+// 3. Use in code: process.env.GEMINI_API_KEY
+//
+// For local development:
+// 1. Create .env.local file with: gemini_api_key=YOUR_KEY
+// 2. dotenv package will automatically load it
+
+
+
+
+
