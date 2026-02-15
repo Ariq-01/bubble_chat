@@ -8,6 +8,8 @@
  */
 
 // Load environment variables from .env.local (only in development)
+
+
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -23,15 +25,13 @@ if (!apiKey) {
     logger.error("Gemini API key not configured. Set 'gemini_api_key' in .env.local or 'GEMINI_API_KEY' in environment");
 }
 
+
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
-interface GenerateTextRequest {
-    data: {
-        prompt?: string;
-    };
-}
+setGlobalOptions({ maxInstances: 5 });
 
-export const generatedText = functions.onCall(async (request: GenerateTextRequest) => {
+
+export const generatedText = functions.onCall(async (request) => {
     try {
         const prompt = request.data.prompt?.trim();
 
@@ -77,7 +77,6 @@ export const generatedText = functions.onCall(async (request: GenerateTextReques
 
 // Cost control: Maximum containers running at once (per-function limit)
 // For cost savings with Gemini API, keep this relatively low
-setGlobalOptions({ maxInstances: 5 });
 
 // For Firebase Secrets Manager (production deployment):
 // 1. Upgrade project to Blaze plan: https://console.firebase.google.com/project/buuble-3aae3/usage/details

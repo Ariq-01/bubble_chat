@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_functions/firebase_functions.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
 import 'firebase_options.dart';
@@ -8,7 +7,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseFunctions.useFunctionsEmulator('10.0.2.2', 5001);
   runApp(const MyApp());
 }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class CustomTextField extends StatefulWidget {
-  const CustomTextField({super.key});
+  const CustomTextField({super.key, required this.onSendMessage});
+  final Function(String, String)? onSendMessage;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -53,7 +55,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
               ),
               IconButton(
                 icon: const Icon(Icons.send),
-                onPressed: () => _controller.clear(),
+                onPressed: () async {
+                  final text = _controller.text.trim();
+                  if (text.isNotEmpty) {
+                    try {
+                      final result = await FirebaseFunctions.instance
+                          .httpsCallable('generatedText')
+                          .call({'prompt': text});
+                      
+                      // Pass both user message and AI response
+                      widget.onSendMessage?.call(text, result.data['text']);
+                      _controller.clear();
+                    } catch (e) {
+                      print('error: $e');
+                    }
+                  }
+                },
               ),
             ],
           ),
