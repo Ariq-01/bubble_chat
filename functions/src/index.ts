@@ -14,24 +14,22 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import * as functions from "firebase-functions/v2/https";
-import { setGlobalOptions } from "firebase-functions/v2";
+// import { setGlobalOptions } from "firebase-functions/v2"; // Unused
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "firebase-functions";
 
 
-// Initialize Gemini API with environment variable from .env.local or Firebase Secrets
-const apiKey = process.env.gemini_api_key || process.env.GEMINI_API_KEY;
-if (!apiKey) {
-    logger.error("Gemini API key not configured. Set 'gemini_api_key' in .env.local or 'GEMINI_API_KEY' in environment");
-}
-
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
-
-setGlobalOptions({ maxInstances: 5 });
-
 
 export const generatedText = functions.onCall(async (request) => {
+    // Initialize Gemini API inside the function to ensure environment variables are loaded
+    const apiKey = process.env.gemini_api_key || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        logger.error("Gemini API key not configured. Set 'gemini_api_key' in .env.local or 'GEMINI_API_KEY' in environment");
+        throw new functions.HttpsError("failed-precondition", "API key missing");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+
     try {
         const prompt = request.data.prompt?.trim();
 
@@ -46,7 +44,7 @@ export const generatedText = functions.onCall(async (request) => {
         logger.info("Processing prompt request", { promptLength: prompt.length });
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash"
+            model: "gemini-flash-latest"
         });
 
         const result = await model.generateContent(prompt);
@@ -64,11 +62,11 @@ export const generatedText = functions.onCall(async (request) => {
         };
     } catch (error) {
         logger.error("Error in generatedText function", { error });
-        
+
         if (error instanceof functions.HttpsError) {
             throw error;
         }
-        
+
         throw new functions.HttpsError("internal", "An unexpected error occurred while generating text");
     }
 })
