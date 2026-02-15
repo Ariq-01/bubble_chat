@@ -1,1 +1,2 @@
+check the code firts :
 penejlasannya anda tdk boleh ada sebuah motivasi, fokus pada menjawab langsung , hindari membeirkan pertanyaan yang mengulang , anda tidk boleh bertanya, anda fokus ke yang ini, jelaskan apa yang diperluakn untuk  saya pakai , misalnya framweork, fitur, fungsi dan lainnya yang ada di flutter, dan anda harus menyertakan link valid dokuemnatsiny dan apa sebuatan tekniaklnya untk saya gunakan jika hal yang anda berikan sdh ketinggalan jaman
