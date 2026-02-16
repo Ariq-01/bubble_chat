@@ -30,7 +30,15 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const HomePage(),
+
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomePage(),
+          '/chat': (context, {arguments}) => ChatPage(
+            chatType: arguments as String,
+          ), // Pass chatType as argument{
+          f,
+        },
       ),
     );
   }

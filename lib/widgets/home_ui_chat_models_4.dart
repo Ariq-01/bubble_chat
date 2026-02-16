@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../assets/color_materials_3.dart';(
+import '../assets/color_materials_3.dart';
 
 class ChatModelCard extends StatelessWidget {
   final String title;
@@ -19,7 +19,10 @@ class ChatModelCard extends StatelessWidget {
         height: 123,
         decoration: BoxDecoration(
           color: ColorMaterials3.getOnBlueContainer(context),
-          border: Border.all(color: CupertinoColors.secondarySystemFill, width: 2),
+          border: Border.all(
+            color: CupertinoColors.secondarySystemFill,
+            width: 2,
+          ),
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
         child: Column(
@@ -28,9 +31,9 @@ class ChatModelCard extends StatelessWidget {
             Text(title),
             const SizedBox(height: 8),
             const Icon(
-              Icons.chat__bubble_outline,
-            size: 48,
-            color: Color.fromARGB(255, 241, 235, 235),
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: Color.fromARGB(255, 241, 235, 235),
             ),
           ],
         ),

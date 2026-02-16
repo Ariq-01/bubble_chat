@@ -33,13 +33,28 @@ class HomePage extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
+
               // to do add 4 mdels
-              ChatButton(title: 'mode lonely', chatType: 'lonely'),
-              ChatButton(title: 'Mode family', chatType: 'family'),
-              ChatButton(title: 'Mode friends', chatType: 'friends'),
-              ChatButton(title: 'Mode bertanya', chatType: 'bertanya'),
-              const SizedBox(height: 20),
-              const HomeUiChatModels4(),
+              // ChatButton(title: 'mode lonely', chatType: 'lonely'),
+              //ChatButton(title: 'Mode family', chatType: 'family'),
+              // ChatButton(title: 'Mode friends', chatType: 'friends'),
+              //ChatButton(title: 'Mode bertanya', chatType: 'bertanya'),rw
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                children: [
+                  const ChatModelCard(
+                    title: 'Mode bertanya',
+                    chatType: 'bertanya',
+                  ),
+                  const ChatModelCard(title: 'Mode family', chatType: 'family'),
+                  const ChatModelCard(
+                    title: 'Mode friends',
+                    chatType: 'friends',
+                  ),
+                  const ChatModelCard(title: 'Mode lonely', chatType: 'lonely'),
+                ],
+              ),
             ],
           ),
         ),
