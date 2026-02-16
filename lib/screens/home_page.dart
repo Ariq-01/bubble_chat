@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chat_page.dart';
+import '../widgets/home_ui_chat_models_4.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -37,6 +38,8 @@ class HomePage extends StatelessWidget {
               ChatButton(title: 'Mode family', chatType: 'family'),
               ChatButton(title: 'Mode friends', chatType: 'friends'),
               ChatButton(title: 'Mode bertanya', chatType: 'bertanya'),
+              const SizedBox(height: 20),
+              const HomeUiChatModels4(),
             ],
           ),
         ),
@@ -44,6 +47,8 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+const List<String> chatTypes = ['lonely', 'family', 'friends', 'bertanya'];
 
 class ChatButton extends StatelessWidget {
   final String title;
