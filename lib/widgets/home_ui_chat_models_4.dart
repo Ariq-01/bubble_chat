@@ -9,7 +9,7 @@ class HomeUiChatModels4 extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Container(
-          margin: const EdgeInsets.all(8.0),
+          //margin: const EdgeInsets.all(8.0),
           width: 151,
           height: 123,
           decoration: BoxDecoration(
@@ -22,7 +22,11 @@ class HomeUiChatModels4 extends StatelessWidget {
             children: [
               // TODO: Add and resize logo here later
               const Text('Chat Model 4'),
-              Icon(Icons.chat_bubble_outline, size: 48, color: Colors.black),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 48,
+                color: const Color.fromARGB(255, 241, 235, 235),
+              ),
             ],
           ),
         ),
