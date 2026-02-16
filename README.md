@@ -2,6 +2,17 @@
 projects figma prd etc, https://www.figma.com/design/c6aa0ftobFo52Dzc2DTtSE/bubble-chat-ai?node-id=16-7&t=97DFQvp8684MaFs7-1
 A new Flutter project.
 
+
+# inspirations projects
+https://github.com/alibaba/flutter-go/tree/master
+
+
+
+# authentications and sources 
+https://github.com/appwrite/appwrite
+
+## 
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
