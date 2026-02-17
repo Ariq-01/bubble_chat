@@ -19,27 +19,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
-        ChangeNotifierProvider(create: (_) => LoadingProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Bubbles Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const HomePage(),
-          '/chat': (context, {arguments}) => ChatPage(
-            chatType: arguments as String,
-          ), // Pass chatType as argument{
-          f,
-        },
-      ),
-    );
+    return MaterialApp.router(
+      title: 'by arcdev',
+      debugShowCheckedModeBanner: false,
+      theme: // to do add theme later,
+      darkTheme: // add later ,
+      themeMode: ThemeMode.system,
+      routerConfig: AppRouter.router /// add this later,
+      );
   }
 }
