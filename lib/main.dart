@@ -5,7 +5,7 @@ import 'screens/home_page.dart';
 import 'firebase_options.dart';
 import 'providers/chat_provider.dart';
 import 'providers/loading_provider.dart';
-
+import 'theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'by arcdev',
       debugShowCheckedModeBanner: false,
-      theme: // to do add theme later,
-      darkTheme: // add later ,
+      theme: lightTheme,// to do add theme later,
+      darkTheme: darkTheme,// add later ,
       themeMode: ThemeMode.system,
       routerConfig: AppRouter.router /// add this later,
       );
