@@ -11,7 +11,7 @@ class Message {
     required this.timestamp,
   });
 
-  Map<String, dyn amic> toJson() => {
+  Map<String, dynamic> toJson() => {
     'id': id,
     'content': content,
     'isUser': isUser,
