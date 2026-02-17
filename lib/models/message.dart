@@ -1,13 +1,36 @@
 class Message {
   final String id;
-  final String text;
+  final String content;
   final bool isUser;
-  final DateTime createdAt;
+  final DateTime timestamp;
 
   Message({
     required this.id,
-    required this.text,
+    required this.content,
     required this.isUser,
-    required this.createdAt,
+    required this.timestamp,
   });
+
+  Map<String, dyn amic> toJson() => {
+    'id': id,
+    'content': content,
+    'isUser': isUser,
+    'timestamp': timestamp.toIso8601String(),
+  };
+
+  factory Message.fromJson(Map<String, dynamic> json) => Message(id: json['id'] as String, 
+  content: json['content'] as String, isUser: json['isUser'] as bool,
+   timestamp: DateTime.parse(json['timestamp'] as String),
+   
+   );
+
+   Message copyWith({
+    String? id,
+    String? content,
+    bool? isUser,
+    DateTime? timestamp,
+   }) => Message(id: id ?? this.id, content: content ?? this.content, isUser: isUser ?? this.isUser, timestamp: timestamp ?? this.timestamp,)
+
 }
+
+
