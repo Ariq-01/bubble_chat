@@ -10,7 +10,9 @@ import 'package:bubbles/services/open_ai.services.dart';
 final chatStorageServiceProvider = Provider((ref) => ChatStorageService());
 final openAIServiceProvider = Provider((ref) => OpenAIService());
 
-final chatsProvider = NotifierProvider<ChatsNotifier, AsyncValue<List<Chat>>>(ChatsNotifier.new);
+final chatsProvider = NotifierProvider<ChatsNotifier, AsyncValue<List<Chat>>>(
+  ChatsNotifier.new,
+);
 
 final historyEnabledProvider = StateProvider<bool>((ref) => true);
 
@@ -75,7 +77,10 @@ class ChatsNotifier extends Notifier<AsyncValue<List<Chat>>> {
 
 final currentChatProvider = StateProvider<Chat?>((ref) => null);
 
-final chatMessagesProvider = NotifierProvider<ChatMessagesNotifier, List<Message>>(ChatMessagesNotifier.new);
+final chatMessagesProvider =
+    NotifierProvider<ChatMessagesNotifier, List<Message>>(
+      ChatMessagesNotifier.new,
+    );
 
 class ChatMessagesNotifier extends Notifier<List<Message>> {
   late final OpenAIService _openAIService;
@@ -110,7 +115,7 @@ class ChatMessagesNotifier extends Notifier<List<Message>> {
 
     try {
       final aiResponse = await _openAIService.sendMessage(mode, state, content);
-      
+
       final aiMessage = Message(
         id: const Uuid().v4(),
         content: aiResponse,
