@@ -1,3 +1,6 @@
+import 'package:bubbles/models/message.dart';
+import 'package:bubbles/providers/chat_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/src/core.dart';
@@ -46,6 +49,24 @@ class ChatScreen extends ConsumerStatefulWidget{
     }
   }
 
+  void _sendMessage() {
+    final content = _messageController.text.trim();
+    if (content.isEmpty)  return;
+
+    final chat = ref.read(chatsProvider.notifier).getChatById(widget.chatId);
+    if (chat == null)  retunr;
+
+    _messageController.clear();
+    ref.read(chatMessagesProvider.notifier).sendMessage(content, chat.mode, widget.chatId);
+    _scrollToBottom();  
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final messages = ref.watch(chatMessagesProvider);
+    final chat = ref.watch(chatsProvider.notifier).getChatById(widget.chatId);
+    final isDark = Theme.of(context).brightness == Brightness.dark
+  }
 
   }
 

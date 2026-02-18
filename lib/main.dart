@@ -1,9 +1,11 @@
-import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/home_page.dart';
+import 'package:bubbles/screens/chat_screen.dart';
 // import 'firebase_options.dart';
 import 'providers/chat_provider.dart';
+import 'package:bubbles/nav.dart';
+import 'package:go_router/go_router.dart';
 
 import 'theme.dart';
 void main() async {
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
       title: 'by arcdev',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,// to do add theme later,
-      darkTheme: darkTheme,// add later ,
+      //darkTheme: darkTheme,// add later ,
       themeMode: ThemeMode.system,
       routerConfig: AppRouter.router /// add this later,
       );

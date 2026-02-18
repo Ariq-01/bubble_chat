@@ -4,10 +4,9 @@ enum ChatMode {
   lonely('lonely', 'Someone to talk to when you need it', 'assets/images/lonely.jpg'),
   justAsking('just asking', 'Quick questions and answers', 'assets/images/just.jpg');
 
-  final String tittle;
+  final String title;
   final String description;
   final String imagePath;
 
-  const ChatMode(this.tittle, this.description, this.imagePath);
-
+  const ChatMode(this.title, this.description, this.imagePath);
 }

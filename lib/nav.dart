@@ -6,7 +6,7 @@ import 'package:bubbles/screens/chat_screen.dart';
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
-    routes: [
+    routes: [ 
       GoRoute(
         path: AppRoutes.home,
         name: 'home',

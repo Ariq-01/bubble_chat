@@ -1,63 +1,143 @@
-import 'package:flutter/material.dart';
-import '../models/message.dart';
-import '../services/chat_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:uuid/uuid.dart';
+import 'package:bubbles/models/chat.dart';
+import 'package:bubbles/models/chat_mode.dart';
+import 'package:bubbles/models/message.dart';
+import 'package:bubbles/services/chat_storage_service.dart';
+import 'package:bubbles/services/openai_service.dart';
 
-class ChatProvider extends ChangeNotifier {
-  final ChatService _chatService = ChatService();
-  final List<Message> _messages = [];
-  bool _isLoading = false;
+final chatStorageServiceProvider = Provider((ref) => ChatStorageService());
+final openAIServiceProvider = Provider((ref) => OpenAIService());
 
-  List<Message> get messages => _messages;
-  bool get isLoading => _isLoading;
+final chatsProvider = NotifierProvider<ChatsNotifier, AsyncValue<List<Chat>>>(ChatsNotifier.new);
 
-  Future<void> sendMessage(String text) async {
+final historyEnabledProvider = StateProvider<bool>((ref) => true);
+
+class ChatsNotifier extends Notifier<AsyncValue<List<Chat>>> {
+  late final ChatStorageService _storageService;
+
+  @override
+  AsyncValue<List<Chat>> build() {
+    _storageService = ref.read(chatStorageServiceProvider);
+    loadChats();
+    return const AsyncValue.loading();
+  }
+
+  Future<void> loadChats() async {
+    state = const AsyncValue.loading();
+    try {
+      final chats = await _storageService.loadChats();
+      state = AsyncValue.data(chats);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> addChat(Chat chat) async {
+    final currentChats = state.value ?? [];
+    final updatedChats = [chat, ...currentChats];
+    state = AsyncValue.data(updatedChats);
+    await _storageService.saveChats(updatedChats);
+  }
+
+  Future<void> updateChat(Chat updatedChat) async {
+    final currentChats = state.value ?? [];
+    final index = currentChats.indexWhere((c) => c.id == updatedChat.id);
+    if (index != -1) {
+      currentChats[index] = updatedChat;
+      state = AsyncValue.data([...currentChats]);
+      await _storageService.saveChats(currentChats);
+    }
+  }
+
+  Future<void> deleteChat(String chatId) async {
+    final currentChats = state.value ?? [];
+    currentChats.removeWhere((c) => c.id == chatId);
+    state = AsyncValue.data([...currentChats]);
+    await _storageService.deleteChat(chatId);
+  }
+
+  Chat? getChatById(String chatId) {
+    final chats = state.value ?? [];
+    try {
+      return chats.firstWhere((c) => c.id == chatId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Chat> getChatsByMode(ChatMode mode) {
+    final chats = state.value ?? [];
+    return chats.where((c) => c.mode == mode).toList();
+  }
+}
+
+final currentChatProvider = StateProvider<Chat?>((ref) => null);
+
+final chatMessagesProvider = NotifierProvider<ChatMessagesNotifier, List<Message>>(ChatMessagesNotifier.new);
+
+class ChatMessagesNotifier extends Notifier<List<Message>> {
+  late final OpenAIService _openAIService;
+  late final ChatsNotifier _chatsNotifier;
+  bool _isProcessing = false;
+
+  @override
+  List<Message> build() {
+    _openAIService = ref.read(openAIServiceProvider);
+    _chatsNotifier = ref.read(chatsProvider.notifier);
+    return [];
+  }
+
+  void setMessages(List<Message> messages) {
+    state = messages;
+  }
+
+  bool get isProcessing => _isProcessing;
+
+  Future<void> sendMessage(String content, ChatMode mode, String chatId) async {
+    if (_isProcessing || content.trim().isEmpty) return;
+
+    _isProcessing = true;
     final userMessage = Message(
-      id: DateTime.now().toString(),
-      text: text,
+      id: const Uuid().v4(),
+      content: content,
       isUser: true,
-      createdAt: DateTime.now(),
+      timestamp: DateTime.now(),
     );
-    _messages.add(userMessage);
-    notifyListeners();
 
-    _isLoading = true;
-    notifyListeners(); // Update UI to show loading if needed (or just wait for stream)
+    state = [...state, userMessage];
 
     try {
-      String fullResponse = "";
-      final aiMessageId = DateTime.now().toString() + "_ai";
-
-      // Use a temporary placeholder or stream directly into a new message
-      // Strategy: Create an empty AI message and update it as chunks arrive
-      var aiMessage = Message(
-        id: aiMessageId,
-        text: "",
+      final aiResponse = await _openAIService.sendMessage(mode, state, content);
+      
+      final aiMessage = Message(
+        id: const Uuid().v4(),
+        content: aiResponse,
         isUser: false,
-        createdAt: DateTime.now(),
+        timestamp: DateTime.now(),
       );
-      _messages.add(aiMessage);
-      notifyListeners();
 
-      await for (final chunk in _chatService.sendMessageStream(text)) {
-        fullResponse += chunk;
+      state = [...state, aiMessage];
 
-        // Update the last message (which is the AI message)
-        final index = _messages.indexWhere((m) => m.id == aiMessageId);
-        if (index != -1) {
-          _messages[index] = Message(
-            id: aiMessageId,
-            text: fullResponse,
-            isUser: false,
-            createdAt: DateTime.now(),
-          );
-          notifyListeners();
-        }
+      final chat = _chatsNotifier.getChatById(chatId);
+      if (chat != null) {
+        final updatedChat = chat.copyWith(
+          messages: state,
+          updatedAt: DateTime.now(),
+        );
+        await _chatsNotifier.updateChat(updatedChat);
       }
     } catch (e) {
-      print("Error streaming message: $e");
+      final errorMessage = Message(
+        id: const Uuid().v4(),
+        content: 'Sorry, I encountered an error. Please try again.',
+        isUser: false,
+        timestamp: DateTime.now(),
+      );
+      state = [...state, errorMessage];
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isProcessing = false;
     }
   }
 }
