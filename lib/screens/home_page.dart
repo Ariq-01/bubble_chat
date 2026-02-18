@@ -1,86 +1,293 @@
 import 'package:flutter/material.dart';
-import 'chat_screen.dart';
-import '../widgets/home_ui_chat_models_4.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import 'package:bubbles/models/chat.dart';
+import 'package:bubbles/models/chat_mode.dart';
+import 'package:bubbles/providers/chat_provider.dart';
+import 'package:bubbles/theme.dart';
+import 'package:bubbles/nav.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final historyEnabled = ref.watch(historyEnabledProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
+        child: Padding(
+          padding: AppSpacing.paddingLg,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                child: Image.asset(
-                  'assets/logo.png',
-                  height: 50,
-                  cacheHeight: 100,
-                  cacheWidth: 100,
-                ),
-                //const SizedBox(height: 20,),
-              ),
-
-              const SizedBox(height: 20),
-              Text(
-                'Welcome to Bubbles',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 10),
-
-              // to do add 4 mdels
-              // ChatButton(title: 'mode lonely', chatType: 'lonely'),
-              //ChatButton(title: 'Mode family', chatType: 'family'),
-              // ChatButton(title: 'Mode friends', chatType: 'friends'),
-              //ChatButton(title: 'Mode bertanya', chatType: 'bertanya'),rw
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const ChatModelCard(
-                    title: 'Mode bertanya',
-                    chatType: 'bertanya',
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isDark ? DarkModeColors.darkSurfaceVariant : LightModeColors.lightSurfaceVariant,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.help_outline, color: isDark ? DarkModeColors.darkOnSurface : LightModeColors.lightOnSurface, size: 24),
                   ),
-                  const ChatModelCard(title: 'Mode family', chatType: 'family'),
-                  const ChatModelCard(
-                    title: 'Mode friends',
-                    chatType: 'friends',
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isDark ? DarkModeColors.darkSurfaceVariant : LightModeColors.lightSurfaceVariant,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.share_outlined, color: isDark ? DarkModeColors.darkOnSurface : LightModeColors.lightOnSurface, size: 24),
                   ),
-                  const ChatModelCard(title: 'Mode lonely', chatType: 'lonely'),
                 ],
+              ),
+              SizedBox(height: AppSpacing.xl),
+              Text(
+                'Hi johs,',
+                style: context.textStyles.displaySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
+                ),
+              ),
+              Text(
+                'Choose youre Ai mode',
+                style: context.textStyles.displaySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
+                ),
+              ),
+              Text(
+                'Styles Today',
+                style: context.textStyles.displaySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
+                ),
+              ),
+              SizedBox(height: AppSpacing.xl),
+              HistoryToggle(
+                isEnabled: historyEnabled,
+                onToggle: (value) => ref.read(historyEnabledProvider.notifier).state = value,
+              ),
+              SizedBox(height: AppSpacing.lg),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: AppSpacing.md,
+                  crossAxisSpacing: AppSpacing.md,
+                  children: ChatMode.values.map((mode) => ChatModeCard(mode: mode)).toList(),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: const BottomNavBar(),
+    );
+  }
+}
+
+class HistoryToggle extends StatelessWidget {
+  final bool isEnabled;
+  final ValueChanged<bool> onToggle;
+
+  const HistoryToggle({super.key, required this.isEnabled, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? DarkModeColors.darkSurfaceVariant : LightModeColors.lightSurfaceVariant,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'History Chat',
+            style: context.textStyles.bodyLarge?.semiBold,
+          ),
+          Switch(
+            value: isEnabled,
+            onChanged: onToggle,
+            activeColor: Colors.green,
+            activeTrackColor: Colors.green.withValues(alpha: 0.3),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChatModeCard extends ConsumerWidget {
+  final ChatMode mode;
+
+  const ChatModeCard({super.key, required this.mode});
+
+  Color _getCardColor(ChatMode mode, bool isDark) {
+    if (isDark) {
+      switch (mode) {
+        case ChatMode.friends:
+          return DarkModeColors.accentBlue;
+        case ChatMode.family:
+          return DarkModeColors.accentBeige;
+        case ChatMode.lonely:
+          return DarkModeColors.accentGreen;
+        case ChatMode.justAsking:
+          return DarkModeColors.accentYellow;
+      }
+    } else {
+      switch (mode) {
+        case ChatMode.friends:
+          return LightModeColors.accentBlue;
+        case ChatMode.family:
+          return LightModeColors.accentBeige;
+        case ChatMode.lonely:
+          return LightModeColors.accentGreen;
+        case ChatMode.justAsking:
+          return LightModeColors.accentYellow;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () {
+        final newChat = Chat(
+          id: const Uuid().v4(),
+          mode: mode,
+          messages: [],
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        ref.read(chatsProvider.notifier).addChat(newChat);
+        ref.read(currentChatProvider.notifier).state = newChat;
+        ref.read(chatMessagesProvider.notifier).setMessages([]);
+        context.push(AppRoutes.chat, extra: newChat.id);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: _getCardColor(mode, isDark),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(
+            color: isDark ? DarkModeColors.darkOutline : LightModeColors.lightOutline,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                image: DecorationImage(
+                  image: AssetImage(mode.imagePath),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: AppSpacing.sm),
+            Text(
+              mode.title,
+              style: context.textStyles.bodyLarge?.semiBold,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-const List<String> chatTypes = ['lonely', 'family', 'friends', 'bertanya'];
+class BottomNavBar extends StatefulWidget {
+  const BottomNavBar({super.key});
 
-class ChatButton extends StatelessWidget {
-  final String title;
-  final String chatType;
+  @override
+  State<BottomNavBar> createState() => _BottomNavBarState();
+}
 
-  ChatButton({required this.title, required this.chatType});
+class _BottomNavBarState extends State<BottomNavBar> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ChatPage(chatType: chatType)),
-        );
-      },
-      child: Text(title),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: EdgeInsets.all(AppSpacing.lg),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: isDark ? DarkModeColors.darkOnSurface : LightModeColors.lightOnSurface,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _NavItem(
+            icon: Icons.home,
+            isSelected: _selectedIndex == 0,
+            onTap: () => setState(() => _selectedIndex = 0),
+          ),
+          _NavItem(
+            icon: Icons.person_outline,
+            isSelected: _selectedIndex == 1,
+            onTap: () => setState(() => _selectedIndex = 1),
+          ),
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: isDark ? DarkModeColors.darkSurface : LightModeColors.lightSurface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.settings_outlined,
+              color: isDark ? DarkModeColors.darkOnSurface : LightModeColors.lightOnSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavItem({required this.icon, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: isSelected ? (isDark ? DarkModeColors.darkSurface : LightModeColors.lightSurface) : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: isDark ? DarkModeColors.darkSurface : LightModeColors.lightSurface,
+        ),
+      ),
     );
   }
 }
