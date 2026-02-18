@@ -5,7 +5,7 @@ import 'package:bubbles/models/chat.dart';
 import 'package:bubbles/models/chat_mode.dart';
 import 'package:bubbles/models/message.dart';
 import 'package:bubbles/services/chat_storage_service.dart';
-import 'package:bubbles/services/openai_service.dart';
+import 'package:bubbles/services/open_ai.services.dart';
 
 final chatStorageServiceProvider = Provider((ref) => ChatStorageService());
 final openAIServiceProvider = Provider((ref) => OpenAIService());
