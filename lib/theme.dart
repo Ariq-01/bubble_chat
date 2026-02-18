@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppSpacing {
+  // Spacing values
   static const double xs = 4.0;
   static const double sm = 8.0;
   static const double md = 16.0;
@@ -9,48 +10,50 @@ class AppSpacing {
   static const double xl = 32.0;
   static const double xxl = 48.0;
 
-
-  // Edge instes tepian 
+  // Edge insets shortcuts
   static const EdgeInsets paddingXs = EdgeInsets.all(xs);
   static const EdgeInsets paddingSm = EdgeInsets.all(sm);
   static const EdgeInsets paddingMd = EdgeInsets.all(md);
   static const EdgeInsets paddingLg = EdgeInsets.all(lg);
   static const EdgeInsets paddingXl = EdgeInsets.all(xl);
-  static const EdgeInsets paddingXxl = EdgeInsets.all(xxl);
 
-  // horizonatall edge
-  static const EdgeInsets horizontalXs = EdgeInsets.symmetric(horizontal:xs);
-  static const EdgeInsets horizontalSm = EdgeInsets.symmetric(horizontal:sm);
-  static const EdgeInsets horizontalMd = EdgeInsets.symmetric(horizontal:md);
-  static const EdgeInsets horizontalLg = EdgeInsets.symmetric(horizontal:lg);
-  static const EdgeInsets horizontalXl = EdgeInsets.symmetric(horizontal:xl);  
+  // Horizontal padding
+  static const EdgeInsets horizontalXs = EdgeInsets.symmetric(horizontal: xs);
+  static const EdgeInsets horizontalSm = EdgeInsets.symmetric(horizontal: sm);
+  static const EdgeInsets horizontalMd = EdgeInsets.symmetric(horizontal: md);
+  static const EdgeInsets horizontalLg = EdgeInsets.symmetric(horizontal: lg);
+  static const EdgeInsets horizontalXl = EdgeInsets.symmetric(horizontal: xl);
 
-  // vertical edge
-  static const EdgeInsets verticalXs = EdgeInsets.symmetric(vertical:xs);
-  static const EdgeInsets verticalSm = EdgeInsets.symmetric(vertical:sm);
-  static const EdgeInsets verticalMd = EdgeInsets.symmetric(vertical:md);
-  static const EdgeInsets verticalLg = EdgeInsets.symmetric(vertical:lg);
-  static const EdgeInsets verticalXl = EdgeInsets.symmetric(vertical:xl);
+  // Vertical padding
+  static const EdgeInsets verticalXs = EdgeInsets.symmetric(vertical: xs);
+  static const EdgeInsets verticalSm = EdgeInsets.symmetric(vertical: sm);
+  static const EdgeInsets verticalMd = EdgeInsets.symmetric(vertical: md);
+  static const EdgeInsets verticalLg = EdgeInsets.symmetric(vertical: lg);
+  static const EdgeInsets verticalXl = EdgeInsets.symmetric(vertical: xl);
 }
 
-// border
- class AppRadius {
+/// Border radius constants for consistent rounded corners
+class AppRadius {
   static const double sm = 8.0;
   static const double md = 12.0;
   static const double lg = 16.0;
   static const double xl = 24.0;
- }
+}
 
+// =============================================================================
+// TEXT STYLE EXTENSIONS
+// =============================================================================
 
- // text styles 
- // acces through context.via styles
+/// Extension to add text style utilities to BuildContext
+/// Access via context.textStyles
+extension TextStyleContext on BuildContext {
+  TextTheme get textStyles => Theme.of(this).textTheme;
+}
 
- extension TextStyleContent on BuildContext {
-    TextTheme get TextStyles => Theme.of(this).textTheme;
- } 
-
- extension TextStyleExtensions on TextStyle {
-   TextStyle get bold => copyWith(fontWeight: FontWeight.bold);
+/// Helper methods for common text style modifications
+extension TextStyleExtensions on TextStyle {
+  /// Make text bold
+  TextStyle get bold => copyWith(fontWeight: FontWeight.bold);
 
   /// Make text semi-bold
   TextStyle get semiBold => copyWith(fontWeight: FontWeight.w600);
@@ -71,10 +74,13 @@ class AppSpacing {
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
+// =============================================================================
+// COLORS
+// =============================================================================
 
- // color 
-
- class LightModeColors {
+/// Modern, soft pastel color palette for AI chat app
+class LightModeColors {
+  // Primary: Soft pastel blue
   static const lightPrimary = Color(0xFF6B9FDB);
   static const lightOnPrimary = Color(0xFF1A1A1A);
   static const lightPrimaryContainer = Color(0xFFD4E7F8);
@@ -111,11 +117,12 @@ class AppSpacing {
   static const lightOutline = Color(0xFFE0E0E0);
   static const lightShadow = Color(0xFF000000);
   static const lightInversePrimary = Color(0xFF6B9FDB);
+}
 
-
- }
- class darkModeColors {
-   static const darkPrimary = Color(0xFF6B9FDB);
+/// Dark mode colors with good contrast
+class DarkModeColors {
+  // Primary: Soft blue for dark mode
+  static const darkPrimary = Color(0xFF6B9FDB);
   static const darkOnPrimary = Color(0xFF1A1A1A);
   static const darkPrimaryContainer = Color(0xFF2A3F5A);
   static const darkOnPrimaryContainer = Color(0xFFD4E7F8);
@@ -150,9 +157,7 @@ class AppSpacing {
   static const darkOutline = Color(0xFF3A3A3A);
   static const darkShadow = Color(0xFF000000);
   static const darkInversePrimary = Color(0xFF6B9FDB);
-
- }
-
+}
 
 /// Font size constants
 class FontSizes {
@@ -173,8 +178,11 @@ class FontSizes {
   static const double bodySmall = 12.0;
 }
 
+// =============================================================================
+// THEMES
+// =============================================================================
 
-// lgiht theme data 
+/// Light theme with modern, neutral aesthetic
 ThemeData get lightTheme => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.light(
@@ -206,8 +214,7 @@ ThemeData get lightTheme => ThemeData(
     elevation: 0,
     scrolledUnderElevation: 0,
   ),
-
-cardTheme: CardThemeData(
+  cardTheme: CardThemeData(
     elevation: 0,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
@@ -220,6 +227,52 @@ cardTheme: CardThemeData(
   textTheme: _buildTextTheme(Brightness.light),
 );
 
+/// Dark theme with good contrast and readability
+ThemeData get darkTheme => ThemeData(
+  useMaterial3: true,
+  colorScheme: ColorScheme.dark(
+    primary: DarkModeColors.darkPrimary,
+    onPrimary: DarkModeColors.darkOnPrimary,
+    primaryContainer: DarkModeColors.darkPrimaryContainer,
+    onPrimaryContainer: DarkModeColors.darkOnPrimaryContainer,
+    secondary: DarkModeColors.darkSecondary,
+    onSecondary: DarkModeColors.darkOnSecondary,
+    tertiary: DarkModeColors.darkTertiary,
+    onTertiary: DarkModeColors.darkOnTertiary,
+    error: DarkModeColors.darkError,
+    onError: DarkModeColors.darkOnError,
+    errorContainer: DarkModeColors.darkErrorContainer,
+    onErrorContainer: DarkModeColors.darkOnErrorContainer,
+    surface: DarkModeColors.darkSurface,
+    onSurface: DarkModeColors.darkOnSurface,
+    surfaceContainerHighest: DarkModeColors.darkSurfaceVariant,
+    onSurfaceVariant: DarkModeColors.darkOnSurfaceVariant,
+    outline: DarkModeColors.darkOutline,
+    shadow: DarkModeColors.darkShadow,
+    inversePrimary: DarkModeColors.darkInversePrimary,
+  ),
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: DarkModeColors.darkSurface,
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.transparent,
+    foregroundColor: DarkModeColors.darkOnSurface,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+  ),
+  cardTheme: CardThemeData(
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(
+        color: DarkModeColors.darkOutline.withValues(alpha: 0.2),
+        width: 1,
+      ),
+    ),
+  ),
+  textTheme: _buildTextTheme(Brightness.dark),
+);
+
+/// Build text theme using Inter font family
 TextTheme _buildTextTheme(Brightness brightness) {
   return TextTheme(
     displayLarge: GoogleFonts.inter(
@@ -292,5 +345,3 @@ TextTheme _buildTextTheme(Brightness brightness) {
     ),
   );
 }
-
-
