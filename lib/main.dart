@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bubbles/screens/home_page.dart';
+import 'services/chat_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,17 +12,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CogniFlow',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B9FDB),
-          brightness: Brightness.light,
+    return ChangeNotifierProvider(
+      create: (_) => ChatProvider(),
+      child: MaterialApp(
+        title: 'CogniFlow',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF6B9FDB),
+            brightness: Brightness.light,
+          ),
         ),
+        home: const HomePage(),
       ),
-      home: const HomePage(),
     );
   }
 }

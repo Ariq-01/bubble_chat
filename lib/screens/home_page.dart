@@ -2,9 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:bubbles/components/mode_card.dart';
 import 'package:bubbles/components/history_toggle.dart';
 import 'package:bubbles/components/bottom_nav.dart';
+import 'package:bubbles/screens/chat_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  void _openChat(BuildContext context, String title, String workflowSlug) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatPage(title: title, workflowSlug: workflowSlug),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,26 +97,30 @@ class HomePage extends StatelessWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  children: const [
+                  children: [
                     ModeCard(
                       title: 'Friends',
                       imagePath: 'assets/images/friends.jpg',
-                      backgroundColor: Color(0xFFD4E7F8),
+                      backgroundColor: const Color(0xFFD4E7F8),
+                      onTap: () => _openChat(context, 'Friends', 'friends'),
                     ),
                     ModeCard(
                       title: 'your family',
                       imagePath: 'assets/images/family.jpg',
-                      backgroundColor: Color(0xFFF5EFE7),
+                      backgroundColor: const Color(0xFFF5EFE7),
+                      onTap: () => _openChat(context, 'Your Family', 'family'),
                     ),
                     ModeCard(
                       title: 'lonely',
                       imagePath: 'assets/images/lonely.jpg',
-                      backgroundColor: Color(0xFFE8F5E9),
+                      backgroundColor: const Color(0xFFE8F5E9),
+                      onTap: () => _openChat(context, 'Lonely', 'lonely'),
                     ),
                     ModeCard(
                       title: 'just asking',
                       imagePath: 'assets/images/just.jpg',
-                      backgroundColor: Color(0xFFFFF9E6),
+                      backgroundColor: const Color(0xFFFFF9E6),
+                      onTap: () => _openChat(context, 'Just Asking', 'just-asking'),
                     ),
                   ],
                 ),
@@ -119,3 +133,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

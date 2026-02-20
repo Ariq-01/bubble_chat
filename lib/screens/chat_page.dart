@@ -1,165 +1,164 @@
 import 'package:flutter/material.dart';
-import '../services/itzam_service.dart';
+import 'package:provider/provider.dart';
+import '../services/chat_provider.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String title;
+  final String workflowSlug;
+
+  const ChatPage({
+    super.key,
+    required this.title,
+    required this.workflowSlug,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
-
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _messageController = TextEditingController();
-  String _result = '';
-  bool _isLoading = false;
+  final _controller = TextEditingController();
 
   void _send() {
-    setState(() {
-      _result = ''; _isLoading = true;
-    });
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    _controller.clear();
+    context.read<ChatProvider>().send(text, widget.workflowSlug);
+  }
+
+  void _onBack() {
+    context.read<ChatProvider>().clear(); // cancel stream + reset state
+    Navigator.pop(context);
   }
 
   @override
   void dispose() {
-    _messageController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      body: SafeArea(
-        child: Column(
+    final chat = context.watch<ChatProvider>();
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) context.read<ChatProvider>().clear();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFAFAFA),
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+            onPressed: _onBack,
+          ),
+          title: Text(
+            widget.title,
+            style: const TextStyle(
+              color: Color(0xFF1A1A1A),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        body: Column(
           children: [
-            // Top app bar
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            Expanded(
+              child: chat.result.isEmpty && !chat.isLoading
+                  ? const Center(
+                      child: Text(
+                        'Say something...',
+                        style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 16),
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F0FE),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: chat.isLoading && chat.result.isEmpty
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Color(0xFF6B9FDB),
+                                    ),
+                                  )
+                                : Text(
+                                    chat.result,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Color(0xFF1A1A1A),
+                                      height: 1.5,
+                                    ),
+                                  ),
+                          ),
+                          if (chat.isLoading && chat.result.isNotEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF6B9FDB),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+            ),
+            // Input bar
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFAFAFA),
+                border: Border(top: BorderSide(color: Color(0xFFE0E0E0))),
+              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back button
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      onSubmitted: (_) => _send(),
+                      textInputAction: TextInputAction.send,
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+                        filled: true,
+                        fillColor: const Color(0xFFEEEEEE),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: chat.isLoading ? null : _send,
                     child: Container(
                       width: 48,
                       height: 48,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E0E0),
+                      decoration: BoxDecoration(
+                        color: chat.isLoading
+                            ? const Color(0xFFCCCCCC)
+                            : const Color(0xFF1A1A1A),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.chevron_left,
-                        color: Color(0xFF1A1A1A),
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                  // Title
-                  const Text(
-                    'ai bot',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  // Delete button
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE0E0E0),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.delete_outline,
-                      color: Color(0xFF1A1A1A),
-                      size: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Chat messages area
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD3D3D3),
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '',
-                      style: TextStyle(
-                        color: Color(0xFF757575),
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Bottom input area
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  // Text input field
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: const InputDecoration(
-                          hintText: 'type your messages....',
-                          hintStyle: TextStyle(
-                            color: Color(0xFF9E9E9E),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                        ),
-                        style: const TextStyle(
-                          color: Color(0xFF1A1A1A),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Microphone button
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE0E0E0),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.mic,
-                      color: Color(0xFF1A1A1A),
-                      size: 24,
+                      child: const Icon(Icons.arrow_upward,
+                          color: Colors.white, size: 22),
                     ),
                   ),
                 ],
@@ -171,3 +170,5 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 }
+
+
