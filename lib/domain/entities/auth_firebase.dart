@@ -1,7 +1,9 @@
-class UserAuth {
-  final String uid;
+
+class AppUser {
   final String id;
   final String? email;
+  final String? displayName;
+  final String? photoUrl;
 
-  UserAuth({required this.uid, required this.id, required this.email});
+  AppUser({required this.id, this.email, this.displayName, this.photoUrl});
 }
